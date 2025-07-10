@@ -290,3 +290,42 @@
     (ok true)
   )
 )
+
+(define-constant ERR_REWARD_CALCULATION_FAILED (err u210))
+(define-constant ERR_INSUFFICIENT_REWARDS (err u211))
+
+;; Reward token (could be a governance token)
+(define-data-var reward-token principal 'SP000000000000000000002Q6VF78.reward-token)
+(define-data-var total-reward-pool uint u1000000000000) ;; 1M reward tokens
+(define-data-var reward-per-block uint u100) ;; Rewards distributed per block
+
+;; User reward tracking
+(define-map user-rewards
+  { user: principal }
+  {
+    pending-rewards: uint,
+    last-claim-block: uint,
+    total-claimed: uint
+  }
+)
+
+;; Market reward multipliers
+(define-map market-reward-multipliers
+  { asset-contract: principal }
+  { supply-multiplier: uint, borrow-multiplier: uint }
+)
+
+(define-public (set-reward-multipliers 
+    (asset-contract principal) 
+    (supply-multiplier uint) 
+    (borrow-multiplier uint)
+  )
+  (begin
+    (try! (check-owner))
+    (map-set market-reward-multipliers
+      { asset-contract: asset-contract }
+      { supply-multiplier: supply-multiplier, borrow-multiplier: borrow-multiplier }
+    )
+    (ok true)
+  )
+)
