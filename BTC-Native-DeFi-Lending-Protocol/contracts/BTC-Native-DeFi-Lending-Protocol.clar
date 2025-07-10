@@ -393,3 +393,49 @@
     max-protection-amount: uint
   }
 )
+
+(define-constant ERR_BRIDGE_OPERATION_FAILED (err u250))
+(define-constant ERR_INVALID_CHAIN_ID (err u251))
+
+(define-map cross-chain-operations
+  { operation-id: uint }
+  {
+    user: principal,
+    source-chain: uint,
+    dest-chain: uint,
+    asset: principal,
+    amount: uint,
+    status: (string-ascii 20)
+  }
+)
+
+(define-data-var next-operation-id uint u1)
+
+(define-public (initiate-cross-chain-transfer 
+    (dest-chain uint) 
+    (asset-contract principal) 
+    (amount uint)
+  )
+  (let 
+    (
+      (operation-id (var-get next-operation-id))
+    )
+    
+    (try! (check-protocol-active))
+    
+    (map-set cross-chain-operations
+      { operation-id: operation-id }
+      {
+        user: tx-sender,
+        source-chain: u1, ;; Stacks chain ID
+        dest-chain: dest-chain,
+        asset: asset-contract,
+        amount: amount,
+        status: "initiated"
+      }
+    )
+    
+    (var-set next-operation-id (+ operation-id u1))
+    (ok operation-id)
+  )
+)
