@@ -37,3 +37,46 @@
   }
 )
 
+;; Protocol reserves
+(define-map token-reserves 
+  { asset-contract: principal }
+  { amount: uint }
+)
+
+;; Market data per asset
+(define-map market-data
+  { asset-contract: principal }
+  {
+    total-supplied: uint,
+    total-borrowed: uint,
+    supply-apy: uint,
+    borrow-apy: uint,
+    last-update-block: uint
+  }
+)
+
+;; User collateral deposits
+(define-map user-collateral
+  { user: principal, asset-contract: principal }
+  { amount: uint }
+)
+
+;; User borrows
+(define-map user-borrows
+  { user: principal, asset-contract: principal }
+  {
+    principal: uint,
+    interest-index: uint,
+    last-update-block: uint
+  }
+)
+
+;; Data persistence for pending BTC collateral operations
+(define-map pending-btc-collateral
+  { bitcoin-tx-id: (buff 32) }
+  {
+    user: principal,
+    amount: uint,
+    status: (string-ascii 20)
+  }
+)
